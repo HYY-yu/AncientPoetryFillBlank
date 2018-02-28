@@ -3,13 +3,11 @@ package main
 import (
 	"fmt"
 	"errors"
+	"FillBlank/spider"
+	"FillBlank/answer"
 )
 
-type SearchResult struct {
-	DisplayName string `mapstructure:"display_name"`
-	Author      string `mapstructure:"literature_author"`
-	Sid         string `mapstructure:"sid"`
-}
+
 
 const BLANK_STRING = "___"
 
@@ -62,18 +60,18 @@ func showAnswer(ans string) {
 
 //findStr格式： （末尾要有标点）：_,则物与我皆无尽也，_！
 func StartSearch(bookName string, author string, findStr string) (string, error) {
-	searchResult, errSearch := FindContent(bookName, author)
+	searchResult, errSearch := spider.FindContent(bookName, author)
 
 	if errSearch != nil {
 		return "", errors.New("程序出错 --" + errSearch.Error())
 	}
 
-	contents, errContent := GetContent(searchResult.Sid)
+	contents, errContent := spider.GetContent(searchResult.Sid)
 	if errContent != nil {
 		return "", errors.New("程序出错 --" + errContent.Error())
 	}
 
-	ans, err := FindTheAnswer(contents, findStr)
+	ans, err := answer.FindTheAnswer(contents, findStr)
 	return ans, err
 }
 

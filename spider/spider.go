@@ -1,4 +1,4 @@
-package main
+package spider
 
 import (
 	"io/ioutil"
@@ -9,6 +9,12 @@ import (
 	"errors"
 	"net/url"
 )
+
+type SearchResult struct {
+	DisplayName string `mapstructure:"display_name"`
+	Author      string `mapstructure:"literature_author"`
+	Sid         string `mapstructure:"sid"`
+}
 
 func GetContent(sid string) (content string, err error) {
 	baseUrl := "http://hanyu.baidu.com/shici/detail"

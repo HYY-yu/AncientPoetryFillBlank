@@ -62,7 +62,6 @@ func StartSearch(bookName string, author string, findStr string) (string, error)
 	if err != nil {
 		return "", errors.New("搜索失败 --" + err.Error())
 	}
-	fmt.Println("find content -- ",contents)
 
 	ans, err := answer.FindTheAnswer(contents, findStr)
 	return ans, err

@@ -106,7 +106,7 @@ func (*GushiwenSpider) FindContent(name string, author string) (searchResult Sea
 	})
 
 	if len(searchResult.Sid) == 0 {
-		return searchResult, errors.New("未搜索到" + name)
+		return searchResult, errors.New(" 未搜索到结果 -- " + name + " -- ")
 	}
 
 	return

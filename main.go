@@ -23,6 +23,7 @@ func main() {
 	ans, errs := StartSearch(bookName, author, findStr)
 	if errs != nil {
 		fmt.Println("errrrrrrro:", errs.Error())
+		return
 	} else {
 		showAnswer(ans)
 	}
@@ -38,6 +39,7 @@ func main() {
 		ans, err := StartSearch(bookName, author, findS)
 		if err != nil {
 			fmt.Println("errrrrrrro:", err.Error())
+			return
 		} else {
 			showAnswer(ans)
 		}

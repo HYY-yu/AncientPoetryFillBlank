@@ -125,7 +125,6 @@ func (b *BaiduSpider) GetContent(searchResult SearchResult) (content string, err
 		//跳过id为means_p的
 		if att, ok := selection.Attr("id"); ok {
 			if att == "means_p" {
-				//跳过
 				return
 			}
 		}

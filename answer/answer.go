@@ -78,6 +78,9 @@ func GetFindsByBlankNum(finds []Find, j int) (Find) {
 }
 
 func makeAnswer(contents string, finds []Find) {
+	//先分割contents
+	contentsSplit, _ := SplitByPunctuation(contents)
+
 	for i := range finds {
 		//自主块：可自主推导出答案的Find
 		//完全块：PreString BlankString PostString 均有的Find
@@ -85,9 +88,9 @@ func makeAnswer(contents string, finds []Find) {
 		if checkStringNotBlank(finds[i].PreString) || checkStringNotBlank(finds[i].PostString) {
 			rootFind := &finds[i]
 			if checkStringNotBlank(rootFind.PreString) {
-				makeWithPreContent(contents, rootFind)
+				makeWithPreContent(contentsSplit, rootFind)
 			} else {
-				makeWithPostContent(contents, rootFind)
+				makeWithPostContent(contentsSplit, rootFind)
 			}
 		}
 	}
@@ -106,7 +109,7 @@ func makeAnswer(contents string, finds []Find) {
 					finds[i].PostString = finds[i+1].BlankString
 
 					//find finds[i].PreString
-					makeWithPostContent(contents, &finds[i])
+					makeWithPostContent(contentsSplit, &finds[i])
 				}
 			}
 			//后向搜索
@@ -119,7 +122,7 @@ func makeAnswer(contents string, finds []Find) {
 					finds[i].PreString = finds[i-1].BlankString
 
 					//find finds[i].PostString
-					makeWithPreContent(contents, &finds[i])
+					makeWithPreContent(contentsSplit, &finds[i])
 				}
 			}
 		}
@@ -131,13 +134,12 @@ func checkStringNotBlank(check string) bool {
 }
 
 //已知newFind的PreString，求BlankString和PostString
-func makeWithPreContent(contents string, newFind *Find) {
-	allC, _ := SplitByPunctuation(contents)
-	for l := range allC {
-		if allC[l] == newFind.PreString && l < len(allC)-1 {
-			newFind.BlankString = allC[l+1]
-			if l < len(allC)-2 {
-				newFind.PostString = allC[l+2]
+func makeWithPreContent(contentsSplit []string, newFind *Find) {
+	for l := range contentsSplit {
+		if contentsSplit[l] == newFind.PreString && l < len(contentsSplit)-1 {
+			newFind.BlankString = contentsSplit[l+1]
+			if l < len(contentsSplit)-2 {
+				newFind.PostString = contentsSplit[l+2]
 			}
 			newFind.BlankFinish = true
 		}
@@ -145,13 +147,12 @@ func makeWithPreContent(contents string, newFind *Find) {
 }
 
 //已知newFind的PostString，求BlankString和PreString
-func makeWithPostContent(contents string, newFind *Find) {
-	allC, _ := SplitByPunctuation(contents)
-	for l := range allC {
-		if allC[l] == newFind.PostString && l > 0 {
-			newFind.BlankString = allC[l-1]
+func makeWithPostContent(contentsSplit []string, newFind *Find) {
+	for l := range contentsSplit {
+		if contentsSplit[l] == newFind.PostString && l > 0 {
+			newFind.BlankString = contentsSplit[l-1]
 			if l-1 > 0 {
-				newFind.PreString = allC[l-2]
+				newFind.PreString = contentsSplit[l-2]
 			}
 			newFind.BlankFinish = true
 		}
@@ -160,12 +161,11 @@ func makeWithPostContent(contents string, newFind *Find) {
 
 // 按标点符号分隔句子
 func SplitByPunctuation(s string) ([]string, []string) {
-	regPunctuation, _ := regexp.Compile(`[,，。?？！!;；：:]`)
+	regPunctuation, _ := regexp.Compile(`[,，。.?？！!;；：:]`)
 	//匹配标点符号，保存下来。 然后分割字符串
 	toPun := regPunctuation.FindAllString(s, -1)
 	result := regPunctuation.Split(s, -1)
 
-	//如果最后一个为空字符串，去掉
 	if len(result[len(result)-1]) == 0 {
 		result = result[:len(result)-1]
 	}

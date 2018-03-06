@@ -2,8 +2,8 @@ package answer
 
 import (
 	"regexp"
-	"strings"
 	"errors"
+	"strings"
 )
 
 const BLANK_STRING = "___"
@@ -54,7 +54,11 @@ func FindTheAnswer(contents string, findSrc string) (string, error) {
 	var returnStr string
 	for i := range findSplits {
 		if findSplits[i] == BLANK_STRING {
-			returnStr += "<ans>" + GetFindsByBlankNum(finds, i).BlankString + "</ans>"
+			ans := GetFindsByBlankNum(finds, i).BlankString
+			if len(ans) == 0 {
+				ans = "未找到本空答案"
+			}
+			returnStr += "<ans>" + ans + "</ans>"
 		} else {
 			returnStr += findSplits[i]
 		}
@@ -94,34 +98,28 @@ func makeAnswer(contents string, finds []Find) {
 			root := i
 			//前向搜索
 			if root > 0 {
-				if !finds[root-1].BlankFinish {
-					for i := root - 1; i >= 0; i-- {
-						if !finds[i].BlankFinish {
-							finds[i].BlankString = finds[i+1].PreString
-							finds[i].PostString = finds[i+1].BlankString
-
-							//find finds[i].PreString
-							makeWithPostContent(contents, &finds[i])
-						} else {
-							break
-						}
+				for i := root - 1; i >= 0; i-- {
+					if finds[i].BlankFinish {
+						break
 					}
+					finds[i].BlankString = finds[i+1].PreString
+					finds[i].PostString = finds[i+1].BlankString
+
+					//find finds[i].PreString
+					makeWithPostContent(contents, &finds[i])
 				}
 			}
 			//后向搜索
 			if root < len(finds)-1 {
-				if !finds[root+1].BlankFinish {
-					for i := root + 1; i < len(finds); i++ {
-						if !finds[i].BlankFinish {
-							finds[i].BlankString = finds[i-1].PostString
-							finds[i].PreString = finds[i-1].BlankString
-
-							//find finds[i].PostString
-							makeWithPreContent(contents, &finds[i])
-						} else {
-							break
-						}
+				for i := root + 1; i < len(finds); i++ {
+					if finds[i].BlankFinish {
+						break
 					}
+					finds[i].BlankString = finds[i-1].PostString
+					finds[i].PreString = finds[i-1].BlankString
+
+					//find finds[i].PostString
+					makeWithPreContent(contents, &finds[i])
 				}
 			}
 		}
@@ -162,14 +160,22 @@ func makeWithPostContent(contents string, newFind *Find) {
 
 // 按标点符号分隔句子
 func SplitByPunctuation(s string) ([]string, []string) {
-	regPunctuation, _ := regexp.Compile(`[,.，。?、？！!;；\()]`)
-	//匹配标点符号，保存下来。
+	regPunctuation, _ := regexp.Compile(`[,，。?？！!;；：:]`)
+	//匹配标点符号，保存下来。 然后分割字符串
 	toPun := regPunctuation.FindAllString(s, -1)
-	x := regPunctuation.ReplaceAllString(s, "@")
-	result := strings.Split(x, "@")
-	//如果最后一个为空，去掉
+	result := regPunctuation.Split(s, -1)
+
+	//如果最后一个为空字符串，去掉
 	if len(result[len(result)-1]) == 0 {
 		result = result[:len(result)-1]
 	}
+
+	//去掉前后空格，去掉引号
+	for i := range result {
+		result[i] = strings.TrimSpace(result[i])
+		regQuoting := regexp.MustCompile("[“”‘’']")
+		result[i] = regQuoting.ReplaceAllString(result[i], "")
+	}
+
 	return result, toPun
 }

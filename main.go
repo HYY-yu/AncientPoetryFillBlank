@@ -16,13 +16,13 @@ func main() {
 	var author string
 	fmt.Scan(&author)
 
-	fmt.Println("要我默写哪句话？（格式 - （末尾要有标点）：_,则物与我皆无尽也，_！）")
+	fmt.Println("要我默写哪句话？（格式 - （末尾要有标点）：___,则物与我皆无尽也，___！）")
 	var findStr string
 	fmt.Scan(&findStr)
 
 	ans, errs := StartSearch(bookName, author, findStr)
 	if errs != nil {
-		fmt.Println("errrrrrrro --", errs.Error())
+		fmt.Println("errrrrrrro:", errs.Error())
 	} else {
 		showAnswer(ans)
 	}
@@ -37,7 +37,7 @@ func main() {
 		}
 		ans, err := StartSearch(bookName, author, findS)
 		if err != nil {
-			fmt.Println("errrrrrrro --", err.Error())
+			fmt.Println("errrrrrrro:", err.Error())
 		} else {
 			showAnswer(ans)
 		}
@@ -56,16 +56,11 @@ func showAnswer(ans string) {
 
 //findStr格式： （末尾要有标点）：_,则物与我皆无尽也，_！
 func StartSearch(bookName string, author string, findStr string) (string, error) {
-	searchResult, errSearch := spider.FindContent(bookName, author)
-
-	if errSearch != nil {
-		return "", errors.New("程序出错 --" + errSearch.Error())
+	contents, err := spider.GetContent(bookName,author)
+	if err != nil {
+		return "", errors.New("搜索失败 --" + err.Error())
 	}
-
-	contents, errContent := spider.GetContent(searchResult.Sid)
-	if errContent != nil {
-		return "", errors.New("程序出错 --" + errContent.Error())
-	}
+	fmt.Println("find content -- ",contents)
 
 	ans, err := answer.FindTheAnswer(contents, findStr)
 	return ans, err

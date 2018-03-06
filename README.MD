@@ -30,4 +30,8 @@
 
 声明：
 ---
-所有数据均来源于百度汉语（http://hanyu.baidu.com ）
+所有数据均来源于网络。
+
+###### 数据源:
+百度汉语（http://hanyu.baidu.com ）
+古诗文网（http://www.gushiwen.org ）

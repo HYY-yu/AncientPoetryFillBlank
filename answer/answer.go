@@ -6,6 +6,8 @@ import (
 	"errors"
 )
 
+const BLANK_STRING = "___"
+
 type Find struct {
 	BlankId     int
 	PreString   string // 前导诗句
@@ -20,6 +22,7 @@ type Find struct {
 func FindTheAnswer(contents string, findSrc string) (string, error) {
 	finds := make([]Find, 0, 0)
 	findSplits, findPun := SplitByPunctuation(findSrc)
+
 	if len(findSplits) != len(findPun) {
 		return "", errors.New("标点符号要输入完整，才是一句话。")
 	}
@@ -51,7 +54,7 @@ func FindTheAnswer(contents string, findSrc string) (string, error) {
 	var returnStr string
 	for i := range findSplits {
 		if findSplits[i] == BLANK_STRING {
-			returnStr += "<ans>" + GetFindsByJ(finds, i).BlankString + "</ans>"
+			returnStr += "<ans>" + GetFindsByBlankNum(finds, i).BlankString + "</ans>"
 		} else {
 			returnStr += findSplits[i]
 		}
@@ -61,7 +64,7 @@ func FindTheAnswer(contents string, findSrc string) (string, error) {
 	return returnStr, nil
 }
 
-func GetFindsByJ(finds []Find, j int) (Find) {
+func GetFindsByBlankNum(finds []Find, j int) (Find) {
 	for i := range finds {
 		if finds[i].BlankNum == j {
 			return finds[i]
@@ -129,6 +132,7 @@ func checkStringNotBlank(check string) bool {
 	return len(check) > 0 && check != BLANK_STRING
 }
 
+//已知newFind的PreString，求BlankString和PostString
 func makeWithPreContent(contents string, newFind *Find) {
 	allC, _ := SplitByPunctuation(contents)
 	for l := range allC {
@@ -142,6 +146,7 @@ func makeWithPreContent(contents string, newFind *Find) {
 	}
 }
 
+//已知newFind的PostString，求BlankString和PreString
 func makeWithPostContent(contents string, newFind *Find) {
 	allC, _ := SplitByPunctuation(contents)
 	for l := range allC {
@@ -155,8 +160,9 @@ func makeWithPostContent(contents string, newFind *Find) {
 	}
 }
 
+// 按标点符号分隔句子
 func SplitByPunctuation(s string) ([]string, []string) {
-	regPunctuation, _ := regexp.Compile(`[,.，。?、？！!;；]`)
+	regPunctuation, _ := regexp.Compile(`[,.，。?、？！!;；\()]`)
 	//匹配标点符号，保存下来。
 	toPun := regPunctuation.FindAllString(s, -1)
 	x := regPunctuation.ReplaceAllString(s, "@")

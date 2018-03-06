@@ -8,6 +8,7 @@ import (
 	"strings"
 	"errors"
 	"net/url"
+	"fmt"
 )
 
 type SearchResult struct {
@@ -17,6 +18,10 @@ type SearchResult struct {
 }
 
 func GetContent(sid string) (content string, err error) {
+	if sid == "be60e92e1c2639b844dd8a6246aa3bf3"{
+		sid = "eee43281ecd94bf7b50adc5698c87e3a"
+	}
+
 	baseUrl := "http://hanyu.baidu.com/shici/detail"
 
 	result := make([]string, 0, 0)
@@ -49,8 +54,15 @@ func GetContent(sid string) (content string, err error) {
 		return
 	}
 
-	pSelect := docm.Find("#body_p")
+	pSelect := docm.Find("div.poem-detail-item-content .poem-detail-main-text")
+
 	pSelect.Each(func(pos int, selection *goquery.Selection) {
+		if att,ok:=  selection.Attr("id");ok{
+			if att == "means_p"{
+				//跳过
+				return
+			}
+		}
 		content := strings.TrimSpace(selection.Text())
 		result = append(result, content)
 	})
@@ -78,7 +90,6 @@ func FindContent(name, author string) (searchResult SearchResult, err error) {
 	req.Header.Add("Referer", "http://hanyu.baidu.com/shici/detail?pid=be520db056da43238035dc18bb1e1798&tn=sug_click")
 
 	resp, errDo := client.Do(req)
-
 	if errDo != nil || resp.StatusCode != 200 {
 		err = errors.New("无法连接百度汉语 " + errDo.Error())
 		return
@@ -92,7 +103,7 @@ func FindContent(name, author string) (searchResult SearchResult, err error) {
 	}
 
 	va := gjson.GetBytes(robots, "data.ret_array")
-
+	fmt.Println(va.String())
 	if len(va.Array()) == 0 {
 		//未找到结果
 		err = errors.New("百度汉语 搜索失败 -- 未找到结果 -- ")

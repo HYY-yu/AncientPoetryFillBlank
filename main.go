@@ -7,10 +7,6 @@ import (
 	"FillBlank/answer"
 )
 
-
-
-const BLANK_STRING = "___"
-
 func main() {
 	fmt.Println("请输入要查询的作品名称：")
 	var bookName string
@@ -27,7 +23,7 @@ func main() {
 	ans, errs := StartSearch(bookName, author, findStr)
 	if errs != nil {
 		fmt.Println("errrrrrrro --", errs.Error())
-	}else{
+	} else {
 		showAnswer(ans)
 	}
 
@@ -42,7 +38,7 @@ func main() {
 		ans, err := StartSearch(bookName, author, findS)
 		if err != nil {
 			fmt.Println("errrrrrrro --", err.Error())
-		}else{
+		} else {
 			showAnswer(ans)
 		}
 	}
@@ -74,5 +70,3 @@ func StartSearch(bookName string, author string, findStr string) (string, error)
 	ans, err := answer.FindTheAnswer(contents, findStr)
 	return ans, err
 }
-
-

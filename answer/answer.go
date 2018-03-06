@@ -136,7 +136,7 @@ func checkStringNotBlank(check string) bool {
 //已知newFind的PreString，求BlankString和PostString
 func makeWithPreContent(contentsSplit []string, newFind *Find) {
 	for l := range contentsSplit {
-		if contentsSplit[l] == newFind.PreString && l < len(contentsSplit)-1 {
+		if isEqual(contentsSplit[l], newFind.PreString) && l < len(contentsSplit)-1 {
 			newFind.BlankString = contentsSplit[l+1]
 			if l < len(contentsSplit)-2 {
 				newFind.PostString = contentsSplit[l+2]
@@ -149,7 +149,7 @@ func makeWithPreContent(contentsSplit []string, newFind *Find) {
 //已知newFind的PostString，求BlankString和PreString
 func makeWithPostContent(contentsSplit []string, newFind *Find) {
 	for l := range contentsSplit {
-		if contentsSplit[l] == newFind.PostString && l > 0 {
+		if isEqual(contentsSplit[l], newFind.PostString) && l > 0 {
 			newFind.BlankString = contentsSplit[l-1]
 			if l-1 > 0 {
 				newFind.PreString = contentsSplit[l-2]
@@ -157,6 +157,25 @@ func makeWithPostContent(contentsSplit []string, newFind *Find) {
 			newFind.BlankFinish = true
 		}
 	}
+}
+
+// 判断要找的句子，和诗文内的句子是否相等。
+func isEqual(content, find string) bool {
+	if content == find {
+		return true
+	}
+
+	//去掉书名号再判断，也就是说：《齐谐》者 == 齐谐者
+	if strings.Contains(content,"《") {
+		regX := regexp.MustCompile("[《》]")
+		newContent := regX.ReplaceAllString(content,"")
+
+		if newContent == find{
+			return true
+		}
+	}
+
+	return false
 }
 
 // 按标点符号分隔句子
